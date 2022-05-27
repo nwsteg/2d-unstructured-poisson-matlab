@@ -1,0 +1,6 @@
+% calculates the cell volume from vertices
+function vol = get_volume(v1,v2,v3)
+    vol = 0.5*abs( v1.x*(v2.y-v3.y) ... 
+                 + v2.x*(v3.y-v1.y) ...
+                 + v3.x*(v1.y-v2.y) );
+end
