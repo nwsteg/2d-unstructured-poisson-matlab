@@ -37,29 +37,34 @@ cells = calculate_alphas(cells);
 % check basic cell data
 print_cells(cells);
 
-% look at the mesh with cell and face ids
+% uncomment to plot the mesh with labeled cells/edges
 % figure(1)
 % plot_mesh(vert,etri,tria,tnum,node,edge,edges,cells);
 
 % check the cell face normals 
 % plot_mesh_normals(vert,etri,tria,tnum,node,edge,edges,cells,hfun);
 num_cells=length(cells);
-
 toc
-if 1==1
+
+% initial conditions
 g = @(x,y) 20*cos(pi*(x+1/2))*sin(2*pi*y);
 % g = @(x,y) 20*cos(3*pi*x)*sin(2*pi*y);
 gv = zeros(num_cells,1);
-ubd=0; % boundary condition for u
 for c = cells
     x=c.cen.x;
     y=c.cen.y;
     gv(c.id) = g(x,y);
 end
 
+
+% uncomment to plot the initial condition
+figure()
 [X,Y]=get_XY(cells);
-%figure(2)
-%plot_uns(X,Y,gv);
+plot_uns(X,Y,gv);
+title('right-hand side g(x,y)')
+
+% boundary condition for u(x,y)
+ubd=0;
 
 fprintf('Constructing matrix... \n')
 A=zeros(num_cells,num_cells);
@@ -126,7 +131,6 @@ for c = cells
         vec.x = u0.cen.x - f1.cen.x;
         vec.y = u0.cen.y - f1.cen.y;
         dz = get_length(u0.cen,f1.cen);     
-%         uf1 = g(f1.cen.x,f1.cen.y);
         uf1=ubd;
         Cu0 = Cu0 + vec_dot(vec,P1)/(dz*dz);
         rhs = rhs + uf1*vec_dot(vec,P1)/(dz*dz);
@@ -145,7 +149,6 @@ for c = cells
         b14 = (1/omega1)*vec_dot(P1,N4);
         b15 = (1/omega1)*vec_dot(P1,N5);
         if f4.isbd == true
-%             uf4 = g(f4.cen.x,f4.cen.y);
             uf4 = ubd;
             rhs = rhs - b14*uf4;
             b14 = 0;
@@ -155,7 +158,6 @@ for c = cells
             u4 = cells(f4.nbr);
         end
         if f5.isbd == true
-%             uf5 = g(f5.cen.x,f5.cen.y);
             uf5 = ubd;
             rhs = rhs - b15*uf5;
             b15 = 0;
@@ -172,7 +174,6 @@ for c = cells
         vec.x = u0.cen.x - f2.cen.x;
         vec.y = u0.cen.y - f2.cen.y;
         dz = get_length(u0.cen,f2.cen);     
-%         uf2 = g(f2.cen.x,f2.cen.y);
         uf2 = ubd;
         Cu0 = Cu0 + vec_dot(vec,P2)/(dz*dz);
         rhs = rhs + uf2*vec_dot(vec,P2)/(dz*dz);
@@ -191,7 +192,6 @@ for c = cells
         b26 = (1/omega2)*vec_dot(P2,N6);
         b27 = (1/omega2)*vec_dot(P2,N7);
         if f6.isbd == true
-%             uf6 = g(f6.cen.x,f6.cen.y);
             uf6 = ubd;
             rhs = rhs - b26*uf6;
             b26 = 0;
@@ -201,7 +201,6 @@ for c = cells
             u6 = cells(f6.nbr);
         end
         if f7.isbd == true
-%             uf7 = g(f7.cen.x,f7.cen.y);
             uf7 = ubd;
             rhs = rhs - b27*uf7;
             b27 = 0;
@@ -217,7 +216,6 @@ for c = cells
         vec.x = u0.cen.x - f3.cen.x;
         vec.y = u0.cen.y - f3.cen.y;
         dz = get_length(u0.cen,f3.cen);     
-%         uf3 = g(f3.cen.x,f3.cen.y);
         uf3 = ubd;
         Cu0 = Cu0 + vec_dot(vec,P3)/(dz*dz);
         rhs = rhs + uf3*vec_dot(vec,P3)/(dz*dz);
@@ -236,7 +234,6 @@ for c = cells
         b38 = (1/omega3)*vec_dot(P3,N8);
         b39 = (1/omega3)*vec_dot(P3,N9);
         if f8.isbd == true
-%             uf8 = g(f8.cen.x,f8.cen.y);
             uf8 = ubd;
             rhs = rhs - b38*uf8;
             b38 = 0;
@@ -246,7 +243,6 @@ for c = cells
             u8 = cells(f8.nbr);
         end
         if f9.isbd == true
-%             uf9 = g(f9.cen.x,f9.cen.y);
             uf9 = ubd;
             rhs = rhs - b39*uf9;
             b39 = 0;
@@ -284,8 +280,7 @@ for c = cells
 end
 
 sol = A\b;
-figure(2)
+figure()
+[X,Y]=get_XY(cells);
 plot_uns(X,Y,sol);
-end
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+title('solution u(x,y)')
